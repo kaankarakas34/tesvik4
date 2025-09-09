@@ -5,6 +5,12 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true,
     },
+    ticketCode: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+      unique: true,
+      field: 'ticket_code'
+    },
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -18,15 +24,24 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
     status: {
-      type: DataTypes.ENUM('open', 'closed'),
+      type: DataTypes.ENUM('open', 'in_progress', 'resolved', 'closed'),
       allowNull: false,
       defaultValue: 'open',
     },
-    assignedTo: {
+    priority: {
+      type: DataTypes.ENUM('low', 'medium', 'high', 'urgent'),
+      allowNull: false,
+      defaultValue: 'medium',
+    },
+    assignedAdminId: {
       type: DataTypes.UUID,
       allowNull: true,
-      field: 'assigned_to',
+      field: 'assigned_admin_id',
       references: {
         model: 'users',
         key: 'id'
@@ -56,16 +71,15 @@ module.exports = (sequelize, DataTypes) => {
       as: 'user'
     });
 
-    // Belongs to User (assigned)
+    // Belongs to User (assigned admin)
     Ticket.belongsTo(models.User, {
-      foreignKey: 'assignedTo',
-      as: 'assignee'
+      foreignKey: 'assignedAdminId',
+      as: 'assignedAdmin'
     });
 
-    // One-to-many with Messages
-    Ticket.hasMany(models.Message, {
-      foreignKey: 'conversationId',
-      scope: { conversationType: 'ticket' },
+    // Has many TicketMessages
+    Ticket.hasMany(models.TicketMessage, {
+      foreignKey: 'ticketId',
       as: 'messages'
     });
   };

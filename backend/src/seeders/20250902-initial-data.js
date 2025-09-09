@@ -16,7 +16,7 @@ module.exports = {
         company_name: null,
         phone: '+90 555 000 00 00',
         role: 'admin',
-        sector: null,
+        sector_id: null,
         status: 'active',
         refresh_token: null,
         created_at: new Date(),

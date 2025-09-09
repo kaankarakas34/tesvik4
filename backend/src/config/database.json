@@ -1,7 +1,11 @@
 {
   "development": {
-    "dialect": "sqlite",
-    "storage": "./database.sqlite",
+    "username": "tesvik_admin",
+    "password": "GucluSifre!2025",
+    "database": "tesvik_platformu_db",
+    "host": "192.168.1.118",
+    "port": 5432,
+    "dialect": "postgres",
     "logging": true
   },
   "production": {

@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const http = require('http');
+const { Server } = require('socket.io');
 require('dotenv').config();
 
 const { sequelize } = require('./src/models');
@@ -9,9 +11,16 @@ const authRoutes = require('./src/routes/auth');
 const adminRoutes = require('./src/routes/admin');
 const applicationsRoutes = require('./src/routes/applications');
 const usersRoutes = require('./src/routes/users');
-const incentivesRoutes = require('./src/routes/incentives');
+const incentivesRoutes = require('./src/routes/incentiveRoutes');
+const documentRoutes = require('./src/routes/documentRoutes');
+const chatRoutes = require('./src/routes/chat');
+const regulationsRoutes = require('./src/routes/regulations');
+const ticketRoutes = require('./src/routes/ticketRoutes');
+const sectorRoutes = require('./src/routes/sectorRoutes');
+const SocketService = require('./src/services/socketService');
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // Security middleware
@@ -19,7 +28,7 @@ app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://your-production-domain.com'] 
-    : ['http://localhost:3000', 'http://192.168.1.123:3000', 'http://127.0.0.1:3000'],
+    : ['http://localhost:3000', 'http://192.168.1.118:3000', 'http://127.0.0.1:3000'],
   credentials: true
 }));
 
@@ -28,12 +37,28 @@ app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Socket.IO setup
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    methods: ["GET", "POST"]
+  }
+});
+
+// Initialize Socket Service
+const socketService = new SocketService(io);
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/applications', applicationsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/incentives', incentivesRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/regulations', regulationsRoutes);
+app.use('/api/tickets', ticketRoutes);
+app.use('/api/sectors', sectorRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -64,16 +89,14 @@ async function startServer() {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
 
-    // Sync database models
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ force: false });
-      console.log('✅ Database models synchronized.');
-    }
+    // Database models are already created, skipping sync
+    console.log('✅ Database models ready (sync disabled).');
 
-    app.listen(PORT, process.env.HOST || '0.0.0.0', () => {
+    server.listen(PORT, process.env.HOST || '0.0.0.0', () => {
       console.log(`🚀 Server is running on port ${PORT}`);
       console.log(`📚 API Health: http://${process.env.HOST || 'localhost'}:${PORT}/api/health`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+      console.log('🔌 Socket.IO server ready');
     });
 
   } catch (error) {

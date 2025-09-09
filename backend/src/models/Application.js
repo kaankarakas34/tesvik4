@@ -35,6 +35,40 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'pending_assignment',
     },
+    projectTitle: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'project_title'
+    },
+    projectDescription: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'project_description'
+    },
+    requestedAmount: {
+      type: DataTypes.DECIMAL(15, 2),
+      allowNull: true,
+      field: 'requested_amount'
+    },
+    submissionDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'submission_date'
+    },
+    expectedStartDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'expected_start_date'
+    },
+    expectedEndDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'expected_end_date'
+    },
+    notes: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -68,8 +102,8 @@ module.exports = (sequelize, DataTypes) => {
     // Many-to-many with Incentives
     Application.belongsToMany(models.Incentive, {
       through: 'ApplicationIncentives',
-      foreignKey: 'applicationId',
-      otherKey: 'incentiveId',
+      foreignKey: 'application_id',
+      otherKey: 'incentive_id',
       as: 'incentives'
     });
 
@@ -79,11 +113,12 @@ module.exports = (sequelize, DataTypes) => {
       as: 'uploadedDocuments'
     });
 
-    // One-to-many with Messages
-    Application.hasMany(models.Message, {
-      foreignKey: 'conversationId',
-      scope: { conversationType: 'application' },
-      as: 'messages'
+    // One-to-many with Messages - Removed to avoid foreign key constraints
+
+    // One-to-many with Chats
+    Application.hasMany(models.Chat, {
+      foreignKey: 'applicationId',
+      as: 'chats'
     });
   };
 

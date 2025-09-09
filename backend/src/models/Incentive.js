@@ -13,6 +13,26 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    amount: {
+      type: DataTypes.DECIMAL(15, 2),
+      allowNull: true,
+      defaultValue: 0
+    },
+    type: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: 'grant'
+    },
+    sectorId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'sector_id',
+      references: {
+        model: 'sectors',
+        key: 'id'
+      },
+      comment: 'Teşviğin ait olduğu sektör'
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -37,6 +57,12 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Incentive.associate = function(models) {
+    // Sector relationship
+    Incentive.belongsTo(models.Sector, {
+      foreignKey: 'sectorId',
+      as: 'sector'
+    });
+
     // Many-to-many with Documents (required documents)
     Incentive.belongsToMany(models.Document, {
       through: 'IncentiveRequiredDocuments',
@@ -48,8 +74,8 @@ module.exports = (sequelize, DataTypes) => {
     // Many-to-many with Applications
     Incentive.belongsToMany(models.Application, {
       through: 'ApplicationIncentives',
-      foreignKey: 'incentiveId',
-      otherKey: 'applicationId',
+      foreignKey: 'incentive_id',
+      otherKey: 'application_id',
       as: 'applications'
     });
   };

@@ -1,15 +1,14 @@
 module.exports = (sequelize, DataTypes) => {
   const Message = sequelize.define('Message', {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
     conversationId: {
       type: DataTypes.STRING,
       allowNull: false,
-      field: 'conversation_id',
-      comment: 'UUID for application or ticket ID'
+      field: 'conversation_id'
     },
     conversationType: {
       type: DataTypes.ENUM('application', 'ticket'),
@@ -19,15 +18,31 @@ module.exports = (sequelize, DataTypes) => {
     senderId: {
       type: DataTypes.UUID,
       allowNull: false,
-      field: 'sender_id',
-      references: {
-        model: 'users',
-        key: 'id'
-      }
+      field: 'sender_id'
+    },
+    senderType: {
+      type: DataTypes.ENUM('user', 'consultant', 'system'),
+      allowNull: false,
+      field: 'sender_type'
     },
     content: {
       type: DataTypes.TEXT,
       allowNull: false,
+    },
+    messageType: {
+      type: DataTypes.ENUM('text', 'file', 'system'),
+      defaultValue: 'text',
+      field: 'message_type'
+    },
+    isRead: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      field: 'is_read'
+    },
+    readAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'read_at'
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -42,7 +57,6 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Message.associate = function(models) {
-    // Belongs to User (sender)
     Message.belongsTo(models.User, {
       foreignKey: 'senderId',
       as: 'sender'

@@ -82,28 +82,28 @@ async function createTestUsers() {
       {
         email: 'ahmet@danismanlik.com',
         fullName: 'Ahmet Consultant',
-        sector: 'Teknoloji ve Yazılım',
+        sectorId: 1, // Bilişim ve Teknoloji
         phone: '+90 555 555 55 55',
         status: 'active'
       },
       {
         email: 'fatma@tesvikuzman.com',
         fullName: 'Fatma Expert',
-        sector: 'İmalat ve Sanayi',
+        sectorId: 2, // İmalat Sanayi
         phone: '+90 555 666 66 66',
         status: 'active'
       },
       {
         email: 'mustafa@consultant.com',
         fullName: 'Mustafa Advisor',
-        sector: 'Enerji ve Çevre',
+        sectorId: 10, // Enerji ve Çevre
         phone: '+90 555 777 77 77',
         status: 'pending'
       },
       {
         email: 'elif@uzman.com',
         fullName: 'Elif Specialist',
-        sector: 'Ar-Ge ve İnovasyon',
+        sectorId: 22, // Araştırma ve Geliştirme
         phone: '+90 555 888 88 88',
         status: 'active'
       }
@@ -119,7 +119,7 @@ async function createTestUsers() {
           email: consultant.email,
           password: consultantPassword,
           fullName: consultant.fullName,
-          sector: consultant.sector,
+          sectorId: consultant.sectorId,
           phone: consultant.phone,
           role: 'consultant',
           status: consultant.status

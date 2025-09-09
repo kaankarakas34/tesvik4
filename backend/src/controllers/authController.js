@@ -25,7 +25,7 @@ class AuthController {
         fullName,
         role,
         companyName: role === 'company' ? companyName : null,
-        sector: role === 'consultant' ? sector : null,
+        sectorId: role === 'consultant' ? sector : null,
         phone,
         status: role === 'admin' ? 'active' : 'pending' // Admin users are automatically active
       });
@@ -93,7 +93,7 @@ class AuthController {
           fullName: user.fullName,
           role: user.role,
           companyName: user.companyName,
-          sector: user.sector,
+          sectorId: user.sectorId,
           status: user.status
         },
         ...tokens
@@ -180,7 +180,7 @@ class AuthController {
           fullName: user.fullName,
           role: user.role,
           companyName: user.companyName,
-          sector: user.sector,
+          sectorId: user.sectorId,
           phone: user.phone,
           status: user.status,
           createdAt: user.createdAt

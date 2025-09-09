@@ -36,15 +36,26 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'company',
     },
-    sector: {
-      type: DataTypes.STRING,
+    sectorId: {
+      type: DataTypes.INTEGER,
       allowNull: true,
-      comment: 'Danışman için uzmanlık sektörü'
+      field: 'sector_id',
+      references: {
+        model: 'sectors',
+        key: 'id'
+      },
+      comment: 'Kullanıcının sektörü'
     },
     status: {
       type: DataTypes.ENUM('pending', 'active', 'inactive'),
       allowNull: false,
       defaultValue: 'pending',
+    },
+    companyId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'company_id',
+      comment: 'Şirket üyeliği için - aynı şirkete ait kullanıcılar'
     },
     refreshToken: {
       type: DataTypes.TEXT,
@@ -69,6 +80,23 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   User.associate = function(models) {
+    // Sector relationship
+    User.belongsTo(models.Sector, {
+      foreignKey: 'sectorId',
+      as: 'sector'
+    });
+
+    // Company membership - self-referencing relationship
+    User.belongsTo(models.User, {
+      foreignKey: 'companyId',
+      as: 'parentCompany'
+    });
+
+    User.hasMany(models.User, {
+      foreignKey: 'companyId',
+      as: 'companyMembers'
+    });
+
     // Company applications
     User.hasMany(models.Application, {
       foreignKey: 'companyId',
@@ -94,11 +122,7 @@ module.exports = (sequelize, DataTypes) => {
       as: 'assignedTickets'
     });
 
-    // Messages sent by user
-    User.hasMany(models.Message, {
-      foreignKey: 'senderId',
-      as: 'sentMessages'
-    });
+    // Messages sent by user - Removed to avoid foreign key constraints
 
     // Posts authored by user
     User.hasMany(models.Post, {
