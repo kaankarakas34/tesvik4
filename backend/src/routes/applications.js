@@ -6,7 +6,9 @@ const {
   createApplication,
   updateApplicationStatus,
   assignConsultant,
-  getApplicationStats
+  autoAssignConsultant,
+  getApplicationStats,
+  deleteApplication
 } = require('../controllers/applicationController');
 
 const router = express.Router();
@@ -28,5 +30,11 @@ router.patch('/:id/status', authenticateToken, updateApplicationStatus);
 
 // Assign consultant to application
 router.patch('/:id/assign', authenticateToken, assignConsultant);
+
+// Auto assign consultant to application
+router.patch('/:id/auto-assign', authenticateToken, autoAssignConsultant);
+
+// Delete application and related conversations
+router.delete('/:id', authenticateToken, deleteApplication);
 
 module.exports = router;

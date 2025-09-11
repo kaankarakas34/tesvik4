@@ -12,6 +12,8 @@ const adminRoutes = require('./src/routes/admin');
 const applicationsRoutes = require('./src/routes/applications');
 const usersRoutes = require('./src/routes/users');
 const incentivesRoutes = require('./src/routes/incentiveRoutes');
+const incentiveTypeRoutes = require('./src/routes/incentiveTypeRoutes');
+const userRoutes = require('./src/routes/userRoutes');
 const documentRoutes = require('./src/routes/documentRoutes');
 const chatRoutes = require('./src/routes/chat');
 const regulationsRoutes = require('./src/routes/regulations');
@@ -28,7 +30,7 @@ app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://your-production-domain.com'] 
-    : ['http://localhost:3000', 'http://192.168.1.118:3000', 'http://127.0.0.1:3000'],
+    : ['http://localhost:3000', 'http://192.168.1.122:3000', 'http://127.0.0.1:3000'],
   credentials: true
 }));
 
@@ -40,7 +42,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: process.env.FRONTEND_URL || "http://192.168.1.122:3000",
     methods: ["GET", "POST"]
   }
 });
@@ -54,6 +56,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/applications', applicationsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/incentives', incentivesRoutes);
+app.use('/api/incentive-types', incentiveTypeRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/regulations', regulationsRoutes);

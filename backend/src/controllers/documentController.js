@@ -1,5 +1,7 @@
-const { Document, Incentive, IncentiveRequiredDocuments } = require('../models');
+const { Document, Incentive, IncentiveRequiredDocuments, UploadedDocument, User } = require('../models');
 const { Op } = require('sequelize');
+const path = require('path');
+const fs = require('fs');
 
 // Get all documents
 const getAllDocuments = async (req, res) => {
@@ -363,6 +365,194 @@ const deleteIncentiveDocumentMapping = async (req, res) => {
   }
 };
 
+// Upload document (authenticated users)
+const uploadDocument = async (req, res) => {
+  try {
+    const { originalDocumentId, applicationId } = req.body;
+    const userId = req.user.id;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Dosya yüklenmedi'
+      });
+    }
+
+    if (!originalDocumentId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Belge türü belirtilmedi'
+      });
+    }
+
+    // Check if original document exists
+    const originalDocument = await Document.findByPk(originalDocumentId);
+    if (!originalDocument) {
+      // Delete uploaded file if document type doesn't exist
+      fs.unlinkSync(file.path);
+      return res.status(404).json({
+        success: false,
+        message: 'Belirtilen belge türü bulunamadı'
+      });
+    }
+
+    // Create uploaded document record
+    const uploadedDocument = await UploadedDocument.create({
+      applicationId: applicationId || null,
+      uploaderId: userId,
+      originalDocumentId: parseInt(originalDocumentId),
+      fileName: file.originalname,
+      filePath: file.path,
+      fileSize: file.size,
+      mimeType: file.mimetype
+    });
+
+    // Get the created document with relations
+    const createdDocument = await UploadedDocument.findByPk(uploadedDocument.id, {
+      include: [
+        {
+          model: User,
+          as: 'uploader',
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: Document,
+          as: 'originalDocument',
+          attributes: ['id', 'name', 'description', 'type']
+        }
+      ]
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Belge başarıyla yüklendi',
+      data: {
+        id: createdDocument.id,
+        fileName: createdDocument.fileName,
+        fileSize: createdDocument.fileSize,
+        mimeType: createdDocument.mimeType,
+        uploadDate: createdDocument.createdAt,
+        uploader: createdDocument.uploader,
+        originalDocument: createdDocument.originalDocument
+      }
+    });
+  } catch (error) {
+    console.error('Upload document error:', error);
+    
+    // Delete uploaded file if database operation fails
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Belge yüklenirken hata oluştu',
+      error: error.message
+    });
+  }
+};
+
+// Get user's uploaded documents
+const getUserUploadedDocuments = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { page = 1, limit = 10, applicationId } = req.query;
+    const offset = (page - 1) * limit;
+
+    const whereClause = { uploaderId: userId };
+    if (applicationId) {
+      whereClause.applicationId = applicationId;
+    }
+
+    const { count, rows } = await UploadedDocument.findAndCountAll({
+      where: whereClause,
+      include: [
+        {
+          model: Document,
+          as: 'originalDocument',
+          attributes: ['id', 'name', 'description', 'type']
+        }
+      ],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['createdAt', 'DESC']]
+    });
+
+    const formattedDocuments = rows.map(doc => ({
+      id: doc.id,
+      fileName: doc.fileName,
+      fileSize: doc.fileSize,
+      mimeType: doc.mimeType,
+      uploadDate: doc.createdAt,
+      originalDocument: doc.originalDocument
+    }));
+
+    res.json({
+      success: true,
+      data: formattedDocuments,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(count / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get user uploaded documents error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Yüklenen belgeler getirilirken hata oluştu',
+      error: error.message
+    });
+  }
+};
+
+// Delete uploaded document
+const deleteUploadedDocument = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    const uploadedDocument = await UploadedDocument.findByPk(id);
+    if (!uploadedDocument) {
+      return res.status(404).json({
+        success: false,
+        message: 'Yüklenen belge bulunamadı'
+      });
+    }
+
+    // Check permissions - user can only delete their own documents, admin can delete any
+    if (userRole !== 'admin' && uploadedDocument.uploaderId !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Bu belgeyi silme yetkiniz yok'
+      });
+    }
+
+    // Delete file from filesystem
+    if (fs.existsSync(uploadedDocument.filePath)) {
+      fs.unlinkSync(uploadedDocument.filePath);
+    }
+
+    // Delete database record
+    await uploadedDocument.destroy();
+
+    res.json({
+      success: true,
+      message: 'Belge başarıyla silindi'
+    });
+  } catch (error) {
+    console.error('Delete uploaded document error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Belge silinirken hata oluştu',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllDocuments,
   getDocumentById,
@@ -371,5 +561,8 @@ module.exports = {
   deleteDocument,
   getIncentiveDocumentMappings,
   createIncentiveDocumentMapping,
-  deleteIncentiveDocumentMapping
+  deleteIncentiveDocumentMapping,
+  uploadDocument,
+  getUserUploadedDocuments,
+  deleteUploadedDocument
 };

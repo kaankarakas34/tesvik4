@@ -1,5 +1,6 @@
 const express = require('express');
 const { authenticateToken, authorizeRoles } = require('../middleware/auth');
+const { upload, handleUploadError } = require('../middleware/upload');
 const {
   getAllDocuments,
   getDocumentById,
@@ -8,7 +9,10 @@ const {
   deleteDocument,
   getIncentiveDocumentMappings,
   createIncentiveDocumentMapping,
-  deleteIncentiveDocumentMapping
+  deleteIncentiveDocumentMapping,
+  uploadDocument,
+  getUserUploadedDocuments,
+  deleteUploadedDocument
 } = require('../controllers/documentController');
 
 const router = express.Router();
@@ -19,7 +23,12 @@ router.use(authenticateToken);
 // Public routes (for all authenticated users)
 router.get('/', getAllDocuments);
 router.get('/mappings', getIncentiveDocumentMappings);
+router.get('/uploaded', getUserUploadedDocuments);
 router.get('/:id', getDocumentById);
+
+// Upload routes (for all authenticated users)
+router.post('/upload', upload.single('document'), handleUploadError, uploadDocument);
+router.delete('/uploaded/:id', deleteUploadedDocument);
 
 // Admin only routes
 router.post('/', authorizeRoles('admin'), createDocument);

@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     applicationId: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       field: 'application_id',
       references: {
         model: 'applications',
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     originalDocumentId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'original_document_id',
       references: {
         model: 'documents',

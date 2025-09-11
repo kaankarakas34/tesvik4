@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
   Document.associate = function(models) {
     // Many-to-many with Incentives
     Document.belongsToMany(models.Incentive, {
-      through: 'incentive_required_documents',
+      through: 'IncentiveRequiredDocuments',
       foreignKey: 'documentId',
       otherKey: 'incentiveId',
       as: 'incentives'

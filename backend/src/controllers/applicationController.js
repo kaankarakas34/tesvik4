@@ -249,6 +249,91 @@ const assignConsultant = async (req, res) => {
   }
 };
 
+// Auto assign consultant to pending applications
+const autoAssignConsultant = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find application
+    const application = await Application.findByPk(id, {
+      include: [{
+        model: Incentive,
+        as: 'incentives',
+        include: [{
+          model: require('../models').Sector,
+          as: 'sector'
+        }]
+      }]
+    });
+    
+    if (!application) {
+      return res.status(404).json({ message: 'Başvuru bulunamadı' });
+    }
+    
+    if (application.status !== 'pending_assignment') {
+      return res.status(400).json({ message: 'Bu başvuru zaten atanmış veya işlemde' });
+    }
+    
+    // Determine sector from incentives
+    let sectorId = null;
+    if (application.incentives && application.incentives.length > 0) {
+      sectorId = application.incentives[0].sectorId;
+    }
+    
+    // Find available consultant based on sector
+    const whereClause = { 
+      role: 'consultant',
+      status: 'active'
+    };
+    
+    if (sectorId) {
+      whereClause.sectorId = sectorId;
+    }
+    
+    let availableConsultant = await User.findOne({
+      where: whereClause,
+      order: [['createdAt', 'ASC']] // Load balancing: assign to oldest consultant
+    });
+    
+    // If no sector-specific consultant found, assign any available consultant
+    if (!availableConsultant && sectorId) {
+      availableConsultant = await User.findOne({
+        where: { 
+          role: 'consultant',
+          status: 'active'
+        },
+        order: [['createdAt', 'ASC']]
+      });
+    }
+    
+    if (!availableConsultant) {
+      return res.status(404).json({ message: 'Uygun danışman bulunamadı' });
+    }
+    
+    // Assign consultant
+    await application.update({ 
+      consultantId: availableConsultant.id,
+      status: 'in_progress'
+    });
+    
+    res.json({
+      message: 'Danışman otomatik olarak atandı',
+      application: {
+        id: application.id,
+        consultantId: availableConsultant.id,
+        consultantName: availableConsultant.fullName,
+        status: 'in_progress'
+      }
+    });
+  } catch (error) {
+    console.error('Auto assign consultant error:', error);
+    res.status(500).json({ 
+      message: 'Otomatik danışman ataması sırasında hata oluştu',
+      error: error.message 
+    });
+  }
+};
+
 // Get application statistics
 const getApplicationStats = async (req, res) => {
   try {
@@ -418,11 +503,49 @@ const createApplication = async (req, res) => {
   }
 };
 
+// Delete application and related conversations
+const deleteApplication = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find the application
+    const application = await Application.findByPk(id);
+    if (!application) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Başvuru bulunamadı' 
+      });
+    }
+    
+    // Delete related chats first
+    await Chat.destroy({
+      where: { applicationId: id }
+    });
+    
+    // Delete the application
+    await application.destroy();
+    
+    res.json({
+      success: true,
+      message: 'Başvuru ve ilgili konuşmalar başarıyla silindi'
+    });
+  } catch (error) {
+    console.error('Delete application error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Başvuru silinirken hata oluştu',
+      error: error.message 
+    });
+  }
+};
+
 module.exports = {
   getAllApplications,
   getApplicationById,
   createApplication,
   updateApplicationStatus,
   assignConsultant,
-  getApplicationStats
+  autoAssignConsultant,
+  getApplicationStats,
+  deleteApplication
 };

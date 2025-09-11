@@ -33,6 +33,16 @@ module.exports = (sequelize, DataTypes) => {
       },
       comment: 'Teşviğin ait olduğu sektör'
     },
+    incentiveTypeId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'incentive_type_id',
+      references: {
+        model: 'incentive_types',
+        key: 'id'
+      },
+      comment: 'Teşviğin türü'
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -61,6 +71,12 @@ module.exports = (sequelize, DataTypes) => {
     Incentive.belongsTo(models.Sector, {
       foreignKey: 'sectorId',
       as: 'sector'
+    });
+
+    // IncentiveType relationship
+    Incentive.belongsTo(models.IncentiveType, {
+      foreignKey: 'incentiveTypeId',
+      as: 'incentiveType'
     });
 
     // Many-to-many with Documents (required documents)

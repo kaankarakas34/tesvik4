@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: GucluSifre!2025
       POSTGRES_DB: tesvik_platformu_db
     ports:
-      - "192.168.1.118:5432:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped

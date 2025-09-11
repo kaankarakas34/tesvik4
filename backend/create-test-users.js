@@ -79,32 +79,256 @@ async function createTestUsers() {
     console.log('👨‍🏫 Creating Consultant Users...');
     
     const consultantUsers = [
+      // Bilişim ve Teknoloji (Sector 1)
       {
         email: 'ahmet@danismanlik.com',
-        fullName: 'Ahmet Consultant',
-        sectorId: 1, // Bilişim ve Teknoloji
+        fullName: 'Ahmet Yılmaz',
+        sectorId: 1,
         phone: '+90 555 555 55 55',
         status: 'active'
       },
       {
+        email: 'mehmet.tech@consultant.com',
+        fullName: 'Mehmet Özkan',
+        sectorId: 1,
+        phone: '+90 555 555 55 56',
+        status: 'active'
+      },
+      {
+        email: 'zeynep.tech@uzman.com',
+        fullName: 'Zeynep Demir',
+        sectorId: 1,
+        phone: '+90 555 555 55 57',
+        status: 'active'
+      },
+      
+      // İmalat Sanayi (Sector 2)
+      {
         email: 'fatma@tesvikuzman.com',
-        fullName: 'Fatma Expert',
-        sectorId: 2, // İmalat Sanayi
+        fullName: 'Fatma Kaya',
+        sectorId: 2,
         phone: '+90 555 666 66 66',
         status: 'active'
       },
       {
-        email: 'mustafa@consultant.com',
-        fullName: 'Mustafa Advisor',
-        sectorId: 10, // Enerji ve Çevre
-        phone: '+90 555 777 77 77',
-        status: 'pending'
+        email: 'ali.imalat@consultant.com',
+        fullName: 'Ali Şahin',
+        sectorId: 2,
+        phone: '+90 555 666 66 67',
+        status: 'active'
       },
       {
-        email: 'elif@uzman.com',
-        fullName: 'Elif Specialist',
-        sectorId: 22, // Araştırma ve Geliştirme
+        email: 'ayse.imalat@uzman.com',
+        fullName: 'Ayşe Yıldız',
+        sectorId: 2,
+        phone: '+90 555 666 66 68',
+        status: 'active'
+      },
+      
+      // Turizm ve Otelcilik (Sector 3)
+      {
+        email: 'emre.turizm@consultant.com',
+        fullName: 'Emre Çelik',
+        sectorId: 3,
+        phone: '+90 555 333 33 33',
+        status: 'active'
+      },
+      {
+        email: 'selin.turizm@uzman.com',
+        fullName: 'Selin Arslan',
+        sectorId: 3,
+        phone: '+90 555 333 33 34',
+        status: 'active'
+      },
+      {
+        email: 'burak.turizm@danismanlik.com',
+        fullName: 'Burak Koç',
+        sectorId: 3,
+        phone: '+90 555 333 33 35',
+        status: 'active'
+      },
+      
+      // Tarım ve Hayvancılık (Sector 4)
+      {
+        email: 'hasan.tarim@consultant.com',
+        fullName: 'Hasan Avcı',
+        sectorId: 4,
+        phone: '+90 555 444 44 44',
+        status: 'active'
+      },
+      {
+        email: 'gulsen.tarim@uzman.com',
+        fullName: 'Gülşen Polat',
+        sectorId: 4,
+        phone: '+90 555 444 44 45',
+        status: 'active'
+      },
+      {
+        email: 'murat.tarim@danismanlik.com',
+        fullName: 'Murat Erdoğan',
+        sectorId: 4,
+        phone: '+90 555 444 44 46',
+        status: 'active'
+      },
+      
+      // İnşaat ve Gayrimenkul (Sector 5)
+      {
+        email: 'kemal.insaat@consultant.com',
+        fullName: 'Kemal Yurt',
+        sectorId: 5,
+        phone: '+90 555 555 55 55',
+        status: 'active'
+      },
+      {
+        email: 'nurcan.insaat@uzman.com',
+        fullName: 'Nurcan Başar',
+        sectorId: 5,
+        phone: '+90 555 555 55 56',
+        status: 'active'
+      },
+      {
+        email: 'osman.insaat@danismanlik.com',
+        fullName: 'Osman Güler',
+        sectorId: 5,
+        phone: '+90 555 555 55 57',
+        status: 'active'
+      },
+      
+      // Sağlık ve Sosyal Hizmetler (Sector 6)
+      {
+        email: 'dr.elif@consultant.com',
+        fullName: 'Dr. Elif Özkan',
+        sectorId: 6,
+        phone: '+90 555 666 66 66',
+        status: 'active'
+      },
+      {
+        email: 'dr.can@uzman.com',
+        fullName: 'Dr. Can Yılmaz',
+        sectorId: 6,
+        phone: '+90 555 666 66 67',
+        status: 'active'
+      },
+      {
+        email: 'dr.pinar@danismanlik.com',
+        fullName: 'Dr. Pınar Kara',
+        sectorId: 6,
+        phone: '+90 555 666 66 68',
+        status: 'active'
+      },
+      
+      // Eğitim ve Öğretim (Sector 7)
+      {
+        email: 'prof.ahmet@consultant.com',
+        fullName: 'Prof. Ahmet Doğan',
+        sectorId: 7,
+        phone: '+90 555 777 77 77',
+        status: 'active'
+      },
+      {
+        email: 'dr.melis@uzman.com',
+        fullName: 'Dr. Melis Çakır',
+        sectorId: 7,
+        phone: '+90 555 777 77 78',
+        status: 'active'
+      },
+      {
+        email: 'ogr.serkan@danismanlik.com',
+        fullName: 'Öğr. Serkan Bulut',
+        sectorId: 7,
+        phone: '+90 555 777 77 79',
+        status: 'active'
+      },
+      
+      // Finans ve Bankacılık (Sector 8)
+      {
+        email: 'cem.finans@consultant.com',
+        fullName: 'Cem Aktaş',
+        sectorId: 8,
         phone: '+90 555 888 88 88',
+        status: 'active'
+      },
+      {
+        email: 'deniz.finans@uzman.com',
+        fullName: 'Deniz Öztürk',
+        sectorId: 8,
+        phone: '+90 555 888 88 89',
+        status: 'active'
+      },
+      {
+        email: 'berna.finans@danismanlik.com',
+        fullName: 'Berna Çetin',
+        sectorId: 8,
+        phone: '+90 555 888 88 90',
+        status: 'active'
+      },
+      
+      // Lojistik ve Taşımacılık (Sector 9)
+      {
+        email: 'volkan.lojistik@consultant.com',
+        fullName: 'Volkan Aslan',
+        sectorId: 9,
+        phone: '+90 555 999 99 99',
+        status: 'active'
+      },
+      {
+        email: 'sibel.lojistik@uzman.com',
+        fullName: 'Sibel Koray',
+        sectorId: 9,
+        phone: '+90 555 999 99 98',
+        status: 'active'
+      },
+      {
+        email: 'taner.lojistik@danismanlik.com',
+        fullName: 'Taner Güven',
+        sectorId: 9,
+        phone: '+90 555 999 99 97',
+        status: 'active'
+      },
+      
+      // Enerji ve Çevre (Sector 10)
+      {
+        email: 'mustafa@consultant.com',
+        fullName: 'Mustafa Enerji',
+        sectorId: 10,
+        phone: '+90 555 777 77 77',
+        status: 'active'
+      },
+      {
+        email: 'ece.enerji@uzman.com',
+        fullName: 'Ece Yeşil',
+        sectorId: 10,
+        phone: '+90 555 101 01 01',
+        status: 'active'
+      },
+      {
+        email: 'kaan.enerji@danismanlik.com',
+        fullName: 'Kaan Çevre',
+        sectorId: 10,
+        phone: '+90 555 101 01 02',
+        status: 'active'
+      },
+      
+      // Araştırma ve Geliştirme (Sector 23)
+      {
+        email: 'elif@uzman.com',
+        fullName: 'Elif Araştırmacı',
+        sectorId: 23,
+        phone: '+90 555 888 88 88',
+        status: 'active'
+      },
+      {
+        email: 'dr.arge1@consultant.com',
+        fullName: 'Dr. Barış İnovasyon',
+        sectorId: 23,
+        phone: '+90 555 230 23 01',
+        status: 'active'
+      },
+      {
+        email: 'dr.arge2@uzman.com',
+        fullName: 'Dr. Canan Geliştirme',
+        sectorId: 23,
+        phone: '+90 555 230 23 02',
         status: 'active'
       }
     ];
@@ -157,26 +381,26 @@ async function createTestUsers() {
     console.log('🏢 Company: GreenTech Energy Ltd.');
     console.log('✅ Status: Active');
     
-    console.log('\n👨‍🏫 CONSULTANT USERS:');
-    console.log('📧 Email: ahmet@danismanlik.com');
-    console.log('🔑 Password: consultant123');
-    console.log('🎯 Sector: Teknoloji ve Yazılım');
-    console.log('✅ Status: Active');
+    console.log('\n👨‍🏫 CONSULTANT USERS (30 danışman):');
+    console.log('🔑 Tüm danışmanlar için şifre: consultant123');
+    console.log('\n🎯 SEKTÖR BAŞINA DANIŞMAN SAYILARI:');
+    console.log('   • Bilişim ve Teknoloji: 3 danışman');
+    console.log('   • İmalat Sanayi: 3 danışman');
+    console.log('   • Turizm ve Otelcilik: 3 danışman');
+    console.log('   • Tarım ve Hayvancılık: 3 danışman');
+    console.log('   • İnşaat ve Gayrimenkul: 3 danışman');
+    console.log('   • Sağlık ve Sosyal Hizmetler: 3 danışman');
+    console.log('   • Eğitim ve Öğretim: 3 danışman');
+    console.log('   • Finans ve Bankacılık: 3 danışman');
+    console.log('   • Lojistik ve Taşımacılık: 3 danışman');
+    console.log('   • Enerji ve Çevre: 3 danışman');
+    console.log('   • Araştırma ve Geliştirme: 3 danışman');
     
-    console.log('\n📧 Email: fatma@tesvikuzman.com');
-    console.log('🔑 Password: consultant123');
-    console.log('🎯 Sector: İmalat ve Sanayi');
-    console.log('✅ Status: Active');
-    
-    console.log('\n📧 Email: mustafa@consultant.com');
-    console.log('🔑 Password: consultant123');
-    console.log('🎯 Sector: Enerji ve Çevre');
-    console.log('⏳ Status: Pending (Admin approval needed)');
-    
-    console.log('\n📧 Email: elif@uzman.com');
-    console.log('🔑 Password: consultant123');
-    console.log('🎯 Sector: Ar-Ge ve İnovasyon');
-    console.log('✅ Status: Active');
+    console.log('\n📧 ÖRNEK DANIŞMAN GİRİŞLERİ:');
+    console.log('📧 Email: ahmet@danismanlik.com (Bilişim)');
+    console.log('📧 Email: fatma@tesvikuzman.com (İmalat)');
+    console.log('📧 Email: dr.elif@consultant.com (Sağlık)');
+    console.log('📧 Email: prof.ahmet@consultant.com (Eğitim)');
     
     console.log('\n================================');
     console.log('🚀 You can now test the system with these users!');

@@ -35,6 +35,8 @@ const Post = require('./Post')(sequelize, DataTypes);
 const UploadedDocument = require('./UploadedDocument')(sequelize, DataTypes);
 const Regulation = require('./Regulation')(sequelize, DataTypes);
 const Sector = require('./Sector')(sequelize, DataTypes);
+const IncentiveType = require('./IncentiveType')(sequelize, DataTypes);
+const IncentiveRequiredDocuments = require('./IncentiveRequiredDocuments')(sequelize, DataTypes);
 
 // Add models to db object
 db.User = User;
@@ -48,7 +50,9 @@ db.Chat = Chat;
 db.Post = Post;
 db.UploadedDocument = UploadedDocument;
 db.Regulation = Regulation;
+db.IncentiveRequiredDocuments = IncentiveRequiredDocuments;
 db.Sector = Sector;
+db.IncentiveType = IncentiveType;
 
 // Define associations
 Object.keys(db).forEach(modelName => {

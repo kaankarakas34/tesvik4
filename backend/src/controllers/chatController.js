@@ -1,5 +1,6 @@
 const { Chat, Message, User, Application, Document, UploadedDocument } = require('../models');
 const { Op } = require('sequelize');
+const ConsultantAssignmentService = require('../services/consultantAssignmentService');
 
 // Get chat by application ID
 const getChatByApplication = async (req, res) => {
@@ -42,10 +43,44 @@ const getChatByApplication = async (req, res) => {
         return res.status(403).json({ message: 'Bu başvuruya erişim yetkiniz yok' });
       }
 
+      // Auto-assign consultant if not already assigned
+      let assignedConsultantId = userRole === 'consultant' ? userId : null;
+      
+      if (!assignedConsultantId && userRole === 'company') {
+        try {
+          // Use the new consultant assignment service
+          const assignmentResult = await ConsultantAssignmentService.assignConsultantToApplication(
+            applicationId, 
+            application.companyId
+          );
+          
+          if (assignmentResult && assignmentResult.consultant) {
+            assignedConsultantId = assignmentResult.consultant.id;
+            console.log(`Danışman atandı: ${assignmentResult.consultant.fullName} - ${assignmentResult.assignmentReason}`);
+          }
+        } catch (assignmentError) {
+          console.error('Otomatik danışman atama hatası:', assignmentError);
+          
+          // Fallback: Find any available consultant
+          const fallbackConsultant = await User.findOne({
+            where: { 
+              role: 'consultant',
+              isActive: true 
+            },
+            order: [['createdAt', 'ASC']]
+          });
+          
+          if (fallbackConsultant) {
+            assignedConsultantId = fallbackConsultant.id;
+            console.log(`Fallback danışman atandı: ${fallbackConsultant.fullName}`);
+          }
+        }
+      }
+
       chat = await Chat.create({
         applicationId,
         userId: application.companyId,
-        consultantId: userRole === 'consultant' ? userId : null,
+        consultantId: assignedConsultantId,
         status: 'active',
         title: `${application.company.companyName || application.company.fullName} - Teşvik Başvurusu`
       });
@@ -468,7 +503,10 @@ const getApplicationDocuments = async (req, res) => {
       };
     });
 
-    res.json({ documents });
+    res.json({ 
+      success: true,
+      documents 
+    });
   } catch (error) {
     console.error('Get application documents error:', error);
     res.status(500).json({ message: 'Belgeler alınırken hata oluştu' });
