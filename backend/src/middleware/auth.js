@@ -3,6 +3,7 @@ const { User } = require('../models');
 
 // Verify authentication middleware
 const authenticateToken = async (req, res, next) => {
+  console.log('Auth middleware hit for:', req.method, req.path);
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN

@@ -1,3 +1,4 @@
+console.log('🚀 SERVER.JS STARTING...');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -9,6 +10,7 @@ require('dotenv').config();
 const { sequelize } = require('./src/models');
 const authRoutes = require('./src/routes/auth');
 const adminRoutes = require('./src/routes/admin');
+console.log('Admin routes loaded:', typeof adminRoutes);
 const applicationsRoutes = require('./src/routes/applications');
 const usersRoutes = require('./src/routes/users');
 const incentivesRoutes = require('./src/routes/incentiveRoutes');
@@ -22,6 +24,24 @@ const sectorRoutes = require('./src/routes/sectorRoutes');
 const SocketService = require('./src/services/socketService');
 
 const app = express();
+
+// Request logger - FIRST MIDDLEWARE
+const fs = require('fs');
+console.log('🔧 SETTING UP REQUEST LOGGER MIDDLEWARE...');
+app.use((req, res, next) => {
+  console.log('🔥🔥🔥 MIDDLEWARE HIT:', req.method, req.url);
+  const logMessage = `${new Date().toISOString()} - ${req.method} ${req.url}\n`;
+  console.log('🔥 REQUEST RECEIVED:', req.method, req.url);
+  try {
+    fs.appendFileSync('request.log', logMessage);
+    console.log('📝 Log written to file');
+  } catch (err) {
+    console.error('❌ Log write error:', err);
+  }
+  next();
+});
+console.log('✅ REQUEST LOGGER MIDDLEWARE SET UP');
+
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
@@ -34,7 +54,7 @@ app.use(cors({
   credentials: true
 }));
 
-// Middleware
+// Other middleware
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -52,7 +72,15 @@ const socketService = new SocketService(io);
 
 // Routes
 app.use('/api/auth', authRoutes);
+console.log('Mounting admin routes at /api/admin');
+console.log('Admin routes type:', typeof adminRoutes);
+console.log('Admin routes keys:', Object.keys(adminRoutes));
 app.use('/api/admin', adminRoutes);
+
+// Debug route
+app.get('/api/debug', (req, res) => {
+  res.json({ message: 'Debug endpoint works!' });
+});
 app.use('/api/applications', applicationsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/incentives', incentivesRoutes);

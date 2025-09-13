@@ -22,11 +22,17 @@ const getAllIncentives = async (req, res) => {
   }
 };
 
-// Şirket teşviklerini getir (aynı şirkete ait kullanıcılar için)
+// Şirket teşviklerini getir (kullanıcının sektörüne göre filtrelenmiş)
 const getCompanyIncentives = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId, {
+      include: [{
+        model: require('../models').Sector,
+        as: 'sector',
+        attributes: ['id', 'name']
+      }]
+    });
 
     if (!user) {
       return res.status(404).json({
@@ -35,41 +41,29 @@ const getCompanyIncentives = async (req, res) => {
       });
     }
 
-    // Eğer kullanıcının company_id'si varsa, aynı şirkete ait teşvikleri getir
+    // Temel filtreleme koşulu
     let whereCondition = { isActive: true };
     
-    if (user.companyId) {
-      // Aynı şirkete ait kullanıcıların başvurularını bul
-      const companyMembers = await User.findAll({
-        where: { companyId: user.companyId },
-        attributes: ['id']
-      });
-      
-      const memberIds = companyMembers.map(member => member.id);
-      
-      // Bu kullanıcıların başvurularında kullanılan teşvikleri getir
-      const applications = await Application.findAll({
-        where: { companyId: { [Op.in]: memberIds } },
-        attributes: ['incentiveId'],
-        group: ['incentiveId']
-      });
-      
-      const incentiveIds = applications.map(app => app.incentiveId).filter(id => id);
-      
-      if (incentiveIds.length > 0) {
-        whereCondition.id = { [Op.in]: incentiveIds };
-      }
+    // Kullanıcının sektörü varsa, sadece o sektöre ait teşvikleri getir
+    if (user.sectorId) {
+      whereCondition.sectorId = user.sectorId;
     }
 
     const incentives = await Incentive.findAll({
       where: whereCondition,
+      include: [{
+        model: require('../models').Sector,
+        as: 'sector',
+        attributes: ['id', 'name']
+      }],
       order: [['createdAt', 'DESC']]
     });
 
     res.json({
       success: true,
       data: incentives,
-      companyId: user.companyId
+      userSector: user.sector?.name || null,
+      sectorId: user.sectorId
     });
   } catch (error) {
     console.error('Get company incentives error:', error);
