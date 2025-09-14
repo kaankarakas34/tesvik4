@@ -9,17 +9,17 @@ class TicketController {
     return `TK-${timestamp}-${random}`.toUpperCase();
   }
 
-  // Yeni ticket oluştur (danışmanlar için)
+  // Yeni ticket oluştur (danışmanlar ve company kullanıcıları için)
   static async createTicket(req, res) {
     try {
       const { title, description, priority = 'medium' } = req.body;
       const userId = req.user.id;
 
-      // Sadece danışmanlar ticket açabilir
-      if (req.user.role !== 'consultant') {
+      // Sadece danışmanlar ve company kullanıcıları ticket açabilir
+      if (req.user.role !== 'consultant' && req.user.role !== 'company') {
         return res.status(403).json({
           success: false,
-          message: 'Sadece danışmanlar ticket açabilir'
+          message: 'Sadece danışmanlar ve şirket kullanıcıları ticket açabilir'
         });
       }
 
